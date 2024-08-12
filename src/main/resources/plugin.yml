@@ -1,0 +1,61 @@
+name: MINELC_CHG
+main: lc.mine.hg.main.BGMain
+version: 1.0
+startup: startup
+depend: [PlaceholderAPI]
+description: Soy esa
+commands:
+  help:
+    description: Help.
+    usage: /<command>
+    aliases: [ayuda, tiempo]
+  rank:
+    description: rank.
+    usage: /<command>
+    aliases: [ran, rnk]
+  kit:
+    description: Kits.
+    usage: /<command>
+    aliases: [equip, clase, class]
+  kitinfo:
+    description: Kits info.
+    usage: /<command> [kitName]
+  start:
+    description: Start.
+    usage: /<command>
+  spawn:
+    description: Spawn.
+    usage: /<command>
+  fbattle:
+    description: Final battle.
+    usage: /<command>
+  gamemaker:
+    description: Game maker.
+    usage: /<command>
+  vanish:
+    description: moderador.
+    usage: /<command>
+    aliases: [v, van]
+  team:
+    description: Team.
+    usage: /<command>
+    aliases: [equipo, t, e]
+  teleport:
+    description: Teleport.
+    usage: /<command>
+  settimeout:
+    description: Teleport.
+    usage: /<command>
+  desbug:
+    description: Desbugear.
+    usage: /<command>
+    aliases: [bug, desbugear, unbug]
+  hack:
+    description: Revisar hack.
+    usage: /<command>
+    aliases: [h, hackerodemierda, hacker]
+  lobby:
+    description: travel to lobby.
+    usage: /<command>
+    aliases:
+      - hub

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c4a1e3ec-d8bb-4dd5-9a07-c09c78439283" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/commands/BGConsole.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/commands/BGPlayer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/data/economy/EconomyManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/data/economy/FameManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/data/temporal/TopManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/data/temporal/User.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/data/temporal/UserManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/events/BGAbilitiesListener.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/events/BGGameListener.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/main/BGMain.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/main/Enchants.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/main/Habilidades.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/timers/EndGameTimer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/timers/GameTimer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/timers/InvincibilityTimer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/timers/PreGameTimer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/BGChat.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/BGCooldown.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/BGFBattle.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/BGFiles.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/BGKillsPAPI.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/BGKit.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/BGSign.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/BGTeam.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/IconMenu.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/ItemUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/ParticleItem.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/Tagged.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/Util.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/enums/GameState.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lc/mine/hg/utilities/enums/Translation.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/abilities.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/book.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/config.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/cornucopia.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/deathsign.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/en.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/feast.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/kit.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/leaderboard.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/plugin.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/world.yml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2iXghCnfRrjyu27icsYQFNKE22n" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Maven.HungerGamesOG [clean].executor": "Run",
+    "Maven.HungerGamesOG [compile].executor": "Run",
+    "Maven.HungerGamesOG [package].executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/ToshioDev/IdeaProjects/HungerGamesOG/src/main/resources",
+    "onboarding.tips.debug.path": "C:/Users/ToshioDev/IdeaProjects/HungerGamesOG/src/main/java/org/example/Main.java",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "reference.settings.project.maven.repository.indices",
+    "show.migrate.to.gradle.popup": "false"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\ToshioDev\IdeaProjects\HungerGamesOG\src\main\resources" />
+      <recent name="C:\Users\ToshioDev\IdeaProjects\HungerGamesOG\src\main\java\lc\mine\hg\utilities" />
+      <recent name="C:\Users\ToshioDev\IdeaProjects\HungerGamesOG\src\main\java" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\ToshioDev\IdeaProjects\HungerGamesOG\src\main\java\lc\mine\hg\data\" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c4a1e3ec-d8bb-4dd5-9a07-c09c78439283" name="Changes" comment="" />
+      <created>1719642452583</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1719642452583</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/example/Main.java</url>
+          <line>13</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
