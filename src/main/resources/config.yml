@@ -83,7 +83,7 @@ SIMPLE_REWARD: true
 # If enabled, players can join server during the game and act like spectators (permissions node "bg.spectator" required)
 SPECTATOR_SYSTEM: true
 
-#ESO TILIN
+# Scoreabord lines and title
 SCOREBOARD:
     TITULO: "&6&lClassic Hunger Games"
     LINES:
