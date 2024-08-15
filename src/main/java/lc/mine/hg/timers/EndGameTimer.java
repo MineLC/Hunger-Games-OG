@@ -18,7 +18,7 @@ public class EndGameTimer
         EndGameTimer.shed_id = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask((Plugin) BGMain.instance, (Runnable)new Runnable() {
             @Override
             public void run() {
-                final World w = Bukkit.getWorlds().get(0);
+                final World w = BGMain.mainWorld;
                 w.setDifficulty(Difficulty.HARD);
                 w.strikeLightning(BGMain.spawn.clone().add(0.0, 50.0, 0.0));
                 BGChat.printInfoChat(new StringBuilder().append(ChatColor.RED).append(ChatColor.BOLD).append("Batalla Final").toString());

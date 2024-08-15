@@ -2,7 +2,8 @@ package lc.mine.hg.commands;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import lc.mine.hg.data.temporal.User;
+
+import lc.mine.hg.data.user.User;
 import lc.mine.hg.main.BGMain;
 import lc.mine.hg.utilities.BGChat;
 import lc.mine.hg.utilities.BGKit;
@@ -26,7 +27,7 @@ public class BGPlayer implements CommandExecutor
             return true;
         }
         final Player p = (Player)sender;
-        final User jug = plugin.getUserManager().getUserById(p.getUniqueId());
+        final User jug = BGMain.database.getCached(p.getUniqueId());
         if (cmd.getName().equalsIgnoreCase("help")) {
             BGChat.printHelpChat(p);
             return true;
@@ -296,7 +297,7 @@ public class BGPlayer implements CommandExecutor
                         BGChat.printPlayerChat(p, ChatColor.RED + Translation.TELEPORT_FUNC_COORDS_NOT_VALID.t());
                         return true;
                     }
-                    final Location loc = new Location((World)Bukkit.getServer().getWorlds().get(0), (double)x, Bukkit.getServer().getWorlds().get(0).getHighestBlockYAt(x, z) + 1.5, (double)z);
+                    final Location loc = new Location(BGMain.mainWorld, (double)x, BGMain.mainWorld.getHighestBlockYAt(x, z) + 1.5, (double)z);
                     BGChat.printPlayerChat(p, ChatColor.GREEN + Translation.TELEPORT_FUNC_TELEPORTED_COORDS.t().replace("<x>", new StringBuilder(String.valueOf(x)).toString()).replace("<z>", new StringBuilder(String.valueOf(z)).toString()));
                     p.teleport(loc);
                     return true;

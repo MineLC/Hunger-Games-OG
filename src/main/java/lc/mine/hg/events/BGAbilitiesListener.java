@@ -8,7 +8,6 @@ import lc.mine.hg.utilities.enums.Translation;
 import org.bukkit.potion.*;
 import org.bukkit.inventory.*;
 import org.bukkit.projectiles.*;
-import org.bukkit.util.*;
 import org.bukkit.block.*;
 import org.bukkit.event.*;
 import org.bukkit.entity.*;
@@ -51,7 +50,7 @@ public class BGAbilitiesListener implements Listener
                     BGCooldown.thorCooldown(p);
                     final Block block = event.getClickedBlock();
                     final Location loc = block.getLocation();
-                    final World world = Bukkit.getServer().getWorlds().get(0);
+                    final World world = BGMain.mainWorld;
                     if (event.getClickedBlock().getType() != Material.BEDROCK) {
                         event.getClickedBlock().setType(Material.NETHERRACK);
                     }
@@ -133,8 +132,7 @@ public class BGAbilitiesListener implements Listener
                 final Player p = (Player)shooter;
                 if (BGKit.hasAbility(p, 37)) {
                     final Location loc = snow.getLocation();
-                    final String world = snow.getWorld().getName();
-                    Bukkit.getServer().getWorld(world).getBlockAt(loc).setType(Material.WEB);
+                    BGMain.mainWorld.getBlockAt(loc).setType(Material.WEB);
                 }
             }
         }

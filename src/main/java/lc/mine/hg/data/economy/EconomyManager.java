@@ -1,38 +1,32 @@
 package lc.mine.hg.data.economy;
 
-import lc.mine.hg.data.temporal.User;
-import lc.mine.hg.data.temporal.UserManager;
 import java.util.UUID;
 
-public class EconomyManager {
-    private UserManager userManager;
+import lc.mine.hg.data.user.User;
+import lc.mine.hg.main.BGMain;
 
-    // Constructor
-    public EconomyManager(UserManager userManager) {
-        this.userManager = userManager;
-    }
+public class EconomyManager {
+
 
     // Add lcoins to a user
     public void addLcoins(UUID id, int amount) {
-        User user = userManager.getUserById(id);
+        User user = BGMain.database.getCached(id);
         if (user != null) {
             user.setLcoins(user.getLcoins() + amount);
-            userManager.saveAllUsers();
         }
     }
 
     // Deduct lcoins from a user
     public void deductLcoins(UUID id, int amount) {
-        User user = userManager.getUserById(id);
+        User user = BGMain.database.getCached(id);
         if (user != null) {
             user.setLcoins(user.getLcoins() - amount);
-            userManager.saveAllUsers();
         }
     }
 
     // Get lcoins of a user
-    public int getLcoins(UUID id) {
-        User user = userManager.getUserById(id);
+    public double getLcoins(UUID id) {
+        User user = BGMain.database.getCached(id);
         return user != null ? user.getLcoins() : 0;
     }
 }

@@ -1,6 +1,6 @@
 package lc.mine.hg.utilities;
 
-import lc.mine.hg.data.temporal.User;
+import lc.mine.hg.data.user.User;
 import lc.mine.hg.main.BGMain;
 import org.bukkit.inventory.*;
 import org.bukkit.entity.*;
@@ -74,7 +74,7 @@ public class BGKit
         p.setFlying(false);
         p.setAllowFlight(false);
 
-        final User jug = plugin.getUserManager().getUserById(p.getUniqueId());
+        final User jug = BGMain.database.getCached(p.getUniqueId());
         final String perms = BGFiles.kitconf.getConfigurationSection(jug.getKit().toLowerCase()).getString("PERMS");
         boolean hasperms = false;
         if (perms.equalsIgnoreCase("VIP") && p.hasPermission("chg.vip")) {
@@ -337,7 +337,7 @@ public class BGKit
             BGChat.printPlayerChat(player, ChatColor.RED + "El kit no existe!");
             return;
         }
-        final User jug = plugin.getUserManager().getUserById(player.getUniqueId());
+        final User jug = BGMain.database.getCached(player.getUniqueId());
         if (jug.getKit().equalsIgnoreCase(kitname)) {
             player.sendMessage(ChatColor.RED + "Ya tienes seleccionado este kit!");
             return;
@@ -366,7 +366,6 @@ public class BGKit
             kitname = new String(stringArray);
             BGChat.printPlayerChat(player, ChatColor.GREEN + "Seleccionaste " + ChatColor.DARK_GREEN + ChatColor.ITALIC + kitname + ChatColor.RESET + ChatColor.GREEN + " como tu kit.");
             player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1.0f, 1.5f);
-            plugin.getUserManager().saveAllUsers();
             return;
         }
         BGChat.printPlayerChat(player, ChatColor.RED + BGMain.NO_KIT_MSG);
@@ -376,8 +375,7 @@ public class BGKit
         if (BGMain.isSpectator(player)) {
             return false;
         }
-        User jug = null;
-        jug = plugin.getUserManager().getUserById(player.getUniqueId());
+        final User jug = BGMain.database.getCached(player.getUniqueId());
 
         if (BGKit.kits.contains(jug.getKit().toLowerCase())) {
             final String kitname = jug.getKit().toLowerCase();

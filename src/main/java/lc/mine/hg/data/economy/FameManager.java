@@ -1,21 +1,16 @@
 package lc.mine.hg.data.economy;
 
-import lc.mine.hg.data.temporal.User;
-import lc.mine.hg.data.temporal.UserManager;
-
 import java.util.UUID;
 
-public class FameManager {
-    private UserManager userManager;
+import lc.mine.hg.data.database.Database;
+import lc.mine.hg.data.user.User;
+import lc.mine.hg.main.BGMain;
 
-    // Constructor
-    public FameManager(UserManager userManager) {
-        this.userManager = userManager;
-    }
+public class FameManager {
 
     // Add fame to a user following the specified logic
     public void addFame(UUID id) {
-        User user = userManager.getUserById(id);
+        User user = BGMain.database.getCached(id);
         if (user != null) {
             int fame = user.getFame();
             if (fame < 4) {
@@ -28,22 +23,20 @@ public class FameManager {
                 fame += 40;
             }
             user.setFame(fame);
-            userManager.saveAllUsers();
         }
     }
 
     // Deduct fame from a user
     public void deductFame(UUID id, int amount) {
-        User user = userManager.getUserById(id);
+        User user = BGMain.database.getCached(id);
         if (user != null) {
             user.setFame(user.getFame() - amount);
-            userManager.saveAllUsers();
         }
     }
 
     // Get fame of a user
     public int getFame(UUID id) {
-        User user = userManager.getUserById(id);
+        User user = BGMain.database.getCached(id);
         return user != null ? user.getFame() : 0;
     }
 }

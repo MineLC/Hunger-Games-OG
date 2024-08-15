@@ -12,10 +12,8 @@ import org.bukkit.inventory.meta.*;
 
 public class IconMenu implements Listener
 {
-    private String name;
     private int size;
     private OptionClickEventHandler handler;
-    private Plugin plugin;
     private Inventory inv;
     private String[] optionNames;
     private ItemStack[] optionIcons;
@@ -24,10 +22,8 @@ public class IconMenu implements Listener
     public IconMenu(final String name, final int size, final OptionClickEventHandler handler, final Plugin plugin) {
         this.inv = null;
         this.destroy = false;
-        this.name = name;
         this.size = size;
         this.handler = handler;
-        this.plugin = plugin;
         this.optionNames = new String[size];
         this.optionIcons = new ItemStack[size];
         plugin.getServer().getPluginManager().registerEvents((Listener)this, plugin);
@@ -37,10 +33,8 @@ public class IconMenu implements Listener
     public IconMenu(final String name, final int size, final OptionClickEventHandler handler, final Plugin plugin, final boolean destroy) {
         this.inv = null;
         this.destroy = false;
-        this.name = name;
         this.size = size;
         this.handler = handler;
-        this.plugin = plugin;
         this.optionNames = new String[size];
         this.optionIcons = new ItemStack[size];
         this.destroy = destroy;
@@ -69,7 +63,6 @@ public class IconMenu implements Listener
     public void destroy() {
         HandlerList.unregisterAll((Listener)this);
         this.handler = null;
-        this.plugin = null;
         this.optionNames = null;
         this.optionIcons = null;
         this.inv = null;
@@ -123,7 +116,7 @@ public class IconMenu implements Listener
     private ItemStack setItemNameAndLore(final ItemStack item, final String name, final String[] lore) {
         final ItemMeta im = item.getItemMeta();
         im.setDisplayName(name);
-        im.setLore((List)Arrays.asList(lore));
+        im.setLore(Arrays.asList(lore));
         item.setItemMeta(im);
         return item;
     }

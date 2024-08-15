@@ -2,7 +2,9 @@ package lc.mine.hg.events;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import lc.mine.hg.data.temporal.User;
+import lc.mine.hg.data.top.Top;
+import lc.mine.hg.data.top.TopStorage;
+import lc.mine.hg.data.user.User;
 import lc.mine.hg.main.BGMain;
 import lc.mine.hg.timers.PreGameTimer;
 import lc.mine.hg.utilities.*;
@@ -19,12 +21,13 @@ import org.bukkit.event.*;
 import java.text.*;
 import org.bukkit.event.server.*;
 import org.apache.commons.lang.*;
-import org.bukkit.command.*;
 import org.bukkit.event.block.*;
 import org.bukkit.scoreboard.*;
 import org.bukkit.projectiles.*;
 import org.bukkit.potion.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.vehicle.*;
@@ -38,28 +41,22 @@ public class BGGameListener implements Listener
     private static ItemStack stats_item;
     private static ItemStack kit_item;
     private static ItemStack book_item;
-    private static ItemStack vippoints_item;
     private static IconMenu invStats_CHG;
     private static IconMenu invStats;
-    private static IconMenu invVipPoints;
     private static IconMenu invStats_CHG_kills;
     private static IconMenu invStats_CHG_deaths;
     private static IconMenu invStats_CHG_part_ganadas;
     private static IconMenu invStats_CHG_part_jugadas;
-    private static IconMenu invStats_CHG_lvl;
     
     static {
         BGGameListener.stats_item = new ItemUtils(Material.PAPER, (short) 0, 1, ChatColor.GREEN + "TOP Jugadores", ChatColor.GRAY + "Click derecho para ver el top de jugadores");
         BGGameListener.kit_item = new ItemUtils(Material.BOW, (short) 0, 1, ChatColor.GREEN + "Selector De Kit", ChatColor.GRAY + "Click derecho para abrir el menu de kits");
-        BGGameListener.vippoints_item = new ItemUtils(Material.GOLD_INGOT, (short)0, 1, ChatColor.GREEN + "Men\u00fa de Vip Points", ChatColor.GRAY + "Click derecho para abrir el menu de vip points");
         BGGameListener.invStats_CHG = null;
         BGGameListener.invStats = null;
-        BGGameListener.invVipPoints = null;
         BGGameListener.invStats_CHG_kills = null;
         BGGameListener.invStats_CHG_deaths = null;
         BGGameListener.invStats_CHG_part_ganadas = null;
         BGGameListener.invStats_CHG_part_jugadas = null;
-        BGGameListener.invStats_CHG_lvl = null;
         BGGameListener.book_item = new ItemStack(Material.WRITTEN_BOOK);
         final List<String> pages = (List<String>) BGFiles.bookconf.getStringList("content");
         final List<String> content = new ArrayList<String>();
@@ -110,17 +107,20 @@ public class BGGameListener implements Listener
                 }
             }, (Plugin) BGMain.instance);
 
-            final LinkedHashMap<String, Integer> top = bgMain.getTopManager().getTopKills();
+   
+            final Top top = TopStorage.get().kills();
             int slot = 0;
-            for (final Map.Entry<String, Integer> es : top.entrySet()) {;
+            for (final Top.Player player : top.players()) {
+                if (player == null) {
+                    break;
+                }
+                StringBuilder title = new StringBuilder();
+                StringBuilder description = new StringBuilder();
 
-                    StringBuilder title = new StringBuilder();
-                    StringBuilder description = new StringBuilder();
+                title.append(ChatColor.GOLD).append(ChatColor.BOLD).append("#").append(slot + 1).append(ChatColor.DARK_GRAY).append(" - ").append(ChatColor.RED).append(player.name);
+                description.append(ChatColor.GRAY).append(player.value).append(" asesinatos");
 
-                    title.append(ChatColor.GOLD).append(ChatColor.BOLD).append("#").append(slot + 1).append(ChatColor.DARK_GRAY).append(" - ").append(ChatColor.RED).append(es.getKey());
-                    description.append(ChatColor.GRAY).append(es.getValue()).append(" asesinatos");
-
-                    invStats_CHG_kills.setOption(slot++, new ItemUtils(es.getKey(), 1, title.toString(), description.toString()));
+                invStats_CHG_kills.setOption(slot++, new ItemUtils(player.name, 1, title.toString(), description.toString()));
             }
             invStats_CHG_kills.setOption(31, new ItemStack(Material.MAP), new StringBuilder().append(ChatColor.GRAY).append(ChatColor.BOLD).append("Regresar").toString(), new String[0]);
         }
@@ -140,16 +140,19 @@ public class BGGameListener implements Listener
                 }
             }, (Plugin) BGMain.instance);
 
-            final LinkedHashMap<String, Integer> top = bgMain.getTopManager().getTopWins();
+            final Top top = TopStorage.get().wins();
             int slot = 0;
-            for (final Map.Entry<String, Integer> es : top.entrySet()) {
-                    StringBuilder title = new StringBuilder();
-                    StringBuilder description = new StringBuilder();
+            for (final Top.Player player : top.players()) {
+                if (player == null) {
+                    break;
+                }
+                StringBuilder title = new StringBuilder();
+                StringBuilder description = new StringBuilder();
 
-                    title.append(ChatColor.GOLD).append(ChatColor.BOLD).append("#").append(slot + 1).append(ChatColor.DARK_GRAY).append(" - ").append(ChatColor.RED).append(es.getKey());
-                    description.append(ChatColor.GRAY).append(es.getValue()).append(" partidas ganadas");
+                title.append(ChatColor.GOLD).append(ChatColor.BOLD).append("#").append(slot + 1).append(ChatColor.DARK_GRAY).append(" - ").append(ChatColor.RED).append(player.name);
+                description.append(ChatColor.GRAY).append(player.value).append(" partidas ganadas");
 
-                    invStats_CHG_part_ganadas.setOption(slot++, new ItemUtils(es.getKey(), 1, title.toString(), description.toString()));
+                invStats_CHG_part_ganadas.setOption(slot++, new ItemUtils(player.name, 1, title.toString(), description.toString()));
             }
             invStats_CHG_part_ganadas.setOption(31, new ItemStack(Material.MAP), new StringBuilder().append(ChatColor.GRAY).append(ChatColor.BOLD).append("Regresar").toString(), new String[0]);
         }
@@ -169,48 +172,23 @@ public class BGGameListener implements Listener
                 }
             }, (Plugin) BGMain.instance);
 
-            final LinkedHashMap<String, Integer> top = bgMain.getTopManager().getTopPlayedGames();
+            final Top top = TopStorage.get().played();
             int slot = 0;
-            for (final Map.Entry<String, Integer> es : top.entrySet()) {
-                    StringBuilder title = new StringBuilder();
-                    StringBuilder description = new StringBuilder();
+            for (final Top.Player player : top.players()) {
+                if (player == null) {
+                    break;
+                }
+                StringBuilder title = new StringBuilder();
+                StringBuilder description = new StringBuilder();
 
-                    title.append(ChatColor.GOLD).append(ChatColor.BOLD).append("#").append(slot + 1).append(ChatColor.DARK_GRAY).append(" - ").append(ChatColor.RED).append(es.getKey());
-                    description.append(ChatColor.GRAY).append(es.getValue()).append(" partidas jugadas");
+                title.append(ChatColor.GOLD).append(ChatColor.BOLD).append("#").append(slot + 1).append(ChatColor.DARK_GRAY).append(" - ").append(ChatColor.RED).append(player.name);
+                description.append(ChatColor.GRAY).append(player.value).append(" partidas jugadas");
 
-                    invStats_CHG_part_jugadas.setOption(slot++, new ItemUtils(es.getKey(), 1, title.toString(), description.toString()));
+                invStats_CHG_part_jugadas.setOption(slot++, new ItemUtils(player.name, 1, title.toString(), description.toString()));
             }
             invStats_CHG_part_jugadas.setOption(31, new ItemStack(Material.MAP), new StringBuilder().append(ChatColor.GRAY).append(ChatColor.BOLD).append("Regresar").toString(), new String[0]);
         }
         return invStats_CHG_part_jugadas;
-    }
-
-    private static IconMenu getInvStats_CHG_lvl() {
-        if (invStats_CHG_lvl == null) {
-            invStats_CHG_lvl = new IconMenu("TOP Nivel - CHG", 45, new IconMenu.OptionClickEventHandler() {
-                @Override
-                public void onOptionClick(final IconMenu.OptionClickEvent e) {
-                    e.setWillClose(false);
-                    e.setWillDestroy(false);
-                    if (e.getPosition() == 31) {
-                        getInvStats_CHG().open(e.getPlayer());
-                    }
-                }
-            }, (Plugin) BGMain.instance);
-
-            final LinkedHashMap<String, Integer> top = bgMain.getTopManager().getTopLevels();
-            int slot = 0;
-            for (final Map.Entry<String, Integer> es : top.entrySet()) {
-                    StringBuilder title = new StringBuilder();
-                    title.append(ChatColor.GOLD).append(ChatColor.BOLD).append("#").append(slot + 1).append(ChatColor.DARK_GRAY).append(" - ").append(ChatColor.RED).append(es.getKey());
-
-                    String description = ChatColor.GRAY + "Nivel: " + es.getValue();
-
-                    invStats_CHG_lvl.setOption(slot++, new ItemUtils(es.getKey(), 1, title.toString(), description));
-            }
-            invStats_CHG_lvl.setOption(31, new ItemStack(Material.MAP), new StringBuilder().append(ChatColor.GRAY).append(ChatColor.BOLD).append("Regresar").toString(), new String[0]);
-        }
-        return invStats_CHG_lvl;
     }
 
     private static IconMenu getInvStats_CHG_deaths() {
@@ -226,15 +204,18 @@ public class BGGameListener implements Listener
                 }
             }, (Plugin) BGMain.instance);
 
-            final LinkedHashMap<String, Integer> top = bgMain.getTopManager().getTopDeaths();
+            final Top top = TopStorage.get().deaths();
             int slot = 0;
-            for (final Map.Entry<String, Integer> es : top.entrySet()) {
-                    StringBuilder title = new StringBuilder();
-                    title.append(ChatColor.GOLD).append(ChatColor.BOLD).append("#").append(slot + 1).append(ChatColor.DARK_GRAY).append(" - ").append(ChatColor.RED).append(es.getKey());
+            for (final Top.Player player : top.players()) {
+                if (player == null) {
+                    break;
+                }
+                StringBuilder title = new StringBuilder();
+                title.append(ChatColor.GOLD).append(ChatColor.BOLD).append("#").append(slot + 1).append(ChatColor.DARK_GRAY).append(" - ").append(ChatColor.RED).append(player.name);
 
-                    String description = ChatColor.GRAY + "" +es.getValue() + " muertes";
+                String description = ChatColor.GRAY + "" +player.value + " muertes";
 
-                    invStats_CHG_deaths.setOption(slot++, new ItemUtils(es.getKey(), 1, title.toString(), description));
+                invStats_CHG_deaths.setOption(slot++, new ItemUtils(player.name, 1, title.toString(), description));
             }
             invStats_CHG_deaths.setOption(31, new ItemStack(Material.MAP), new StringBuilder().append(ChatColor.GRAY).append(ChatColor.BOLD).append("Regresar").toString(), new String[0]);
         }
@@ -274,48 +255,8 @@ public class BGGameListener implements Listener
         return BGGameListener.invStats_CHG;
     }
     
-    private static IconMenu getInv_VipPoints(final Player p) {
-        User jug = bgMain.getUserManager().getUserById(p.getUniqueId());
-        if (BGGameListener.invVipPoints == null) {
-            (BGGameListener.invVipPoints = new IconMenu("Men\u00fa de Vip Points", 27, (IconMenu.OptionClickEventHandler)new IconMenu.OptionClickEventHandler() {
-                public void onOptionClick(final IconMenu.OptionClickEvent e) {
-                    e.setWillClose(false);
-                    e.setWillDestroy(false);
-                    switch (e.getPosition()) {
-                        case 9: {
-                            BGChat.printPlayerChat(e.getPlayer(), "&eCompra o canjea(/lobby) el rango &b&lVIP");
-                            BGChat.printPlayerChat(e.getPlayer(), "&bhttps://tienda.mine.lc");
-                            break;
-                        }
-                        case 11: {
-                            BGChat.printPlayerChat(e.getPlayer(), "&eCompra o canjea(/lobby) el rango &a&lSVIP");
-                            BGChat.printPlayerChat(e.getPlayer(), "&ahttps://tienda.mine.lc");
-                            break;
-                        }
-                        case 15: {
-                            BGChat.printPlayerChat(e.getPlayer(), "&eCompra o canjea(/lobby) el rango &6&lELITE");
-                            BGChat.printPlayerChat(e.getPlayer(), "&6https://tienda.mine.lc");
-                            break;
-                        }
-                        case 17: {
-                            BGChat.printPlayerChat(e.getPlayer(), "&eCompra o canjea(/lobby) el rango &c&lRUBY");
-                            BGChat.printPlayerChat(e.getPlayer(), "&chttps://tienda.mine.lc");
-                            break;
-                        }
-                    }
-                }
-            }, (Plugin)BGMain.instance)).setOption(9, new ItemStack(Material.IRON_INGOT), ChatColor.AQUA + "Rango " + ChatColor.BOLD + "VIP", ChatColor.GRAY + "Desde: " + ChatColor.YELLOW + "75" + ChatColor.YELLOW + " VIP-Points", ChatColor.GRAY + "�Usa /lobby para reclamarlos!");
-            BGGameListener.invVipPoints.setOption(11, new ItemStack(Material.GOLD_INGOT), ChatColor.GREEN + "Rango " + ChatColor.BOLD + "SVIP", ChatColor.GRAY + "Desde: " + ChatColor.YELLOW + "150" + ChatColor.YELLOW + " VIP-Points", ChatColor.GRAY + "�Usa /lobby para reclamarlos!");
-            final ItemStack skull = new ItemUtils(p.getName(), 1, "", "");
-            BGGameListener.invVipPoints.setOption(13, skull, ChatColor.GOLD + "Vip Points", new StringBuilder().append(ChatColor.YELLOW).append(jug.getVipPoints()).toString());
-            BGGameListener.invVipPoints.setOption(15, new ItemStack(Material.DIAMOND), ChatColor.GOLD + "Rango " + ChatColor.BOLD + "ELITE", ChatColor.GRAY + "Desde: " + ChatColor.YELLOW + "225" + ChatColor.YELLOW + " VIP-Points", ChatColor.GRAY + "�Usa /lobby para reclamarlos!");
-            BGGameListener.invVipPoints.setOption(17, new ItemStack(Material.EMERALD), ChatColor.RED + "Rango " + ChatColor.BOLD + "RUBY", ChatColor.GRAY + "Desde: " + ChatColor.YELLOW + "300" + ChatColor.YELLOW + " VIP-Points", ChatColor.GRAY + "�Usa /lobby para reclamarlos!");
-        }
-        return BGGameListener.invVipPoints;
-    }
-    
     private static IconMenu getInv_Stats(final Player p) {
-        User jug = bgMain.getUserManager().getUserById(p.getUniqueId());
+        User jug = BGMain.database.getCached(p.getUniqueId());
         if (BGGameListener.invStats == null) {
             (BGGameListener.invStats = new IconMenu("Tus Estad\u00edsticas", 45, (IconMenu.OptionClickEventHandler)new IconMenu.OptionClickEventHandler() {
                 public void onOptionClick(final IconMenu.OptionClickEvent e) {
@@ -328,8 +269,7 @@ public class BGGameListener implements Listener
             BGGameListener.invStats.setOption(16, new ItemStack(Material.GOLDEN_APPLE, 1, (short)1), new StringBuilder().append(ChatColor.GOLD).append(ChatColor.BOLD).append("Victorias").toString(), new StringBuilder().append(ChatColor.GRAY).append(jug.getWins()).toString());
             BGGameListener.invStats.setOption(28, new ItemStack(Material.PAPER), new StringBuilder().append(ChatColor.GOLD).append(ChatColor.BOLD).append("Jugadas").toString(), new StringBuilder().append(ChatColor.GRAY).append(jug.getPlayedGames()).toString());
             BGGameListener.invStats.setOption(30, new ItemStack(Material.GOLD_INGOT), new StringBuilder().append(ChatColor.GOLD).append(ChatColor.BOLD).append("LCoins").toString(), new StringBuilder().append(ChatColor.GRAY).append(jug.getLcoins()).toString());
-            BGGameListener.invStats.setOption(32, new ItemStack(Material.DIAMOND), new StringBuilder().append(ChatColor.GOLD).append(ChatColor.BOLD).append("Vip Points").toString(), new StringBuilder().append(ChatColor.GRAY).append(jug.getVipPoints()).toString());
-            BGGameListener.invStats.setOption(34, new ItemStack(Material.NETHER_STAR), new StringBuilder().append(ChatColor.GOLD).append(ChatColor.BOLD).append("Nivel").toString(), ChatColor.GRAY + jug.getRank());
+            BGGameListener.invStats.setOption(32, new ItemStack(Material.NETHER_STAR), new StringBuilder().append(ChatColor.GOLD).append(ChatColor.BOLD).append("Nivel").toString(), ChatColor.GRAY + jug.getRank());
         }
         return BGGameListener.invStats;
     }
@@ -361,9 +301,6 @@ public class BGGameListener implements Listener
                 buf.writerIndex(1);
                 final PacketPlayOutCustomPayload packet = new PacketPlayOutCustomPayload("MC|BOpen", new PacketDataSerializer(buf));
                 ((CraftPlayer)p).getHandle().playerConnection.sendPacket((Packet)packet);
-            }
-            else if (p.getItemInHand().getType() == Material.GOLD_INGOT) {
-                getInv_VipPoints(p).open(p);
             }
             else if (p.getItemInHand().getType() == Material.SKULL_ITEM) {
                 getInv_Stats(p).open(p);
@@ -462,22 +399,13 @@ public class BGGameListener implements Listener
         event.setLeaveMessage((String)null);
     }
     
-    @EventHandler
-    public void onLogin(final AsyncPlayerPreLoginEvent e) {
-        final User jug = bgMain.getUserManager().getUserById(e.getUniqueId());
-        final Player p = Bukkit.getPlayer(e.getUniqueId());
-        try {
-            bgMain.getUserManager().updateUser(jug);
-        }
-        catch (Exception a) {
-            a.printStackTrace();
-            p.kickPlayer("&cError al cargar tus datos Ingresa Nuevamente!");
-        }
-    }
     
     @EventHandler
     public void onLogin(final PlayerLoginEvent e) {
-
+        if (BGMain.loading) {
+            e.disallow(PlayerLoginEvent.Result.KICK_OTHER, "El juego se está reiniciando, espera un poco");
+            return;
+        }
         if (e.getResult() == PlayerLoginEvent.Result.KICK_FULL) {
             if (BGMain.GAMESTATE == GameState.PREGAME) {
                 if (e.getPlayer().hasPermission("chg.bypassfull")) {
@@ -503,45 +431,37 @@ public class BGGameListener implements Listener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(final PlayerJoinEvent event) {
         final Player p = event.getPlayer();
-        //agrega una validacion de que el usuario este en el UserManager registrado y sino registralo como usuario nuevo
-        if (bgMain.getUserManager().getUserById(p.getUniqueId()) == null) {
-            bgMain.getUserManager().registerNewPlayer(p);
-        }
-        final User jug = bgMain.getUserManager().getUserById(p.getUniqueId());
-        event.setJoinMessage((String)null);
-        p.getInventory().clear();
-        p.updateInventory();
-        if (jug.getRank() == null) {
-            jug.setRank("Nuevo");
-            bgMain.getUserManager().saveAllUsers();
-        }
-        else if (jug.getRank().equals("")) {
-            bgMain.getUserManager().updateUser(jug);
-        }
-        p.setGameMode(GameMode.SURVIVAL);
-        p.setMaxHealth(24.0);
-        p.setHealth(24.0);
-        p.setAllowFlight(true);
-        BGMain.kills.put(p.getName(), 0);
-        if (BGMain.GAMESTATE == GameState.PREGAME) {
-            BGMain.gamers.add(p);
-            p.getInventory().addItem(new ItemStack[] { BGGameListener.kit_item });
-            p.getInventory().addItem(new ItemStack[] { BGGameListener.book_item });
-            p.getInventory().setItem(8, BGGameListener.stats_item);
-            p.getInventory().setItem(7, BGGameListener.vippoints_item);
-            final ItemStack stats_item = new ItemUtils(event.getPlayer().getName(), 1, ChatColor.GREEN + "Tus Estad\u00edsticas", ChatColor.GRAY + "Click para ver tus estadisticas");
-            p.getInventory().setItem(4, stats_item);
-            if (!PreGameTimer.started && Bukkit.getOnlinePlayers().size() > BGMain.MINIMUM_PLAYERS - 1) {
-                new PreGameTimer();
+        event.setJoinMessage(null);
+
+        CompletableFuture.runAsync(() -> {
+            final User jug = BGMain.database.load(p);
+            if (jug.getRank() == null) {
+                jug.setRank("Nuevo");
             }
-        }
-        else {
-            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&f" + event.getPlayer().getName() + " &aesta espectando"));
-            BGMain.addSpectator(p);
-        }
-        final String command = "minecraft:gamerule sendCommandFeedback false";
-        Bukkit.getServer().dispatchCommand((CommandSender)Bukkit.getConsoleSender(), command);
-        Util.sendTitle(p, 0, 60, 0, "&6&lCHG", "&awww.mine.lc");
+            BGMain.instance.getServer().getScheduler().runTask(bgMain, () -> {
+                p.setGameMode(GameMode.SURVIVAL);
+                p.setAllowFlight(true);
+                BGMain.kills.put(p.getName(), 0);
+                Util.sendTitle(p, 0, 60, 0, "&6&lCHG", "&awww.mine.lc");
+                p.getInventory().clear();
+                p.updateInventory();
+                if (BGMain.GAMESTATE == GameState.PREGAME) {
+                    BGMain.gamers.add(p);
+                    p.getInventory().addItem(new ItemStack[] { BGGameListener.kit_item });
+                    p.getInventory().addItem(new ItemStack[] { BGGameListener.book_item });
+                    p.getInventory().setItem(8, BGGameListener.stats_item);
+                    final ItemStack stats_item = new ItemUtils(event.getPlayer().getName(), 1, ChatColor.GREEN + "Tus Estad\u00edsticas", ChatColor.GRAY + "Click para ver tus estadisticas");
+                    p.getInventory().setItem(4, stats_item);
+                    if (!PreGameTimer.started && Bukkit.getOnlinePlayers().size() > BGMain.MINIMUM_PLAYERS - 1) {
+                        new PreGameTimer();
+                    }
+                }
+                else {
+                    Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&f" + event.getPlayer().getName() + " &aesta espectando"));
+                    BGMain.addSpectator(p);
+                }
+            });
+        });
     }
 
     
@@ -570,7 +490,7 @@ public class BGGameListener implements Listener
     public void onPlayerQuit(final PlayerQuitEvent event) {
         final Player p = event.getPlayer();
         event.setQuitMessage((String)null);
-        final User jug = bgMain.getUserManager().getUserById(p.getUniqueId());
+        final User jug = BGMain.database.getCached(p.getUniqueId());
         Player pjug = Bukkit.getPlayer(jug.getId());
         if (BGMain.gamers.contains(p)) {
             BGMain.gamers.remove(p);
@@ -588,7 +508,6 @@ public class BGGameListener implements Listener
                     BGMain.kills.put(pkiller.getName(), BGMain.kills.get(pkiller.getName()) + 1);
                     jug.setDeaths(jug.getDeaths() + 1);
                     this.sendGameMessage(ChatColor.GRAY + pjug.getName() + ChatColor.YELLOW + " se desconecto pero fue asesinado por " + ChatColor.GRAY + pkiller.getName() + ChatColor.YELLOW + "!");
-                    bgMain.getUserManager().saveAllUsers();
                     final Location loc = p.getLocation();
                     ItemStack[] armorContents;
                     for (int length = (armorContents = p.getInventory().getArmorContents()).length, i = 0; i < length; ++i) {
@@ -636,7 +555,10 @@ public class BGGameListener implements Listener
         }
         p.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
         p.getScoreboard().clearSlot(DisplaySlot.BELOW_NAME);
-        //bgMain.getUserManager().removeUser(jug);
+        CompletableFuture.runAsync(() -> {
+            TopStorage.get().save(jug);
+            BGMain.database.save(p);
+        });
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -734,7 +656,7 @@ public class BGGameListener implements Listener
     public void onDeath(final PlayerDeathEvent e) {
         e.setDeathMessage((String)null);
         final Player ptarget = e.getEntity();
-        final User target = bgMain.getUserManager().getUserById(ptarget.getUniqueId());
+        final User target = BGMain.database.getCached(ptarget.getUniqueId());
         final Entity ent = (Entity)e.getEntity();
         EntityDamageEvent.DamageCause damageCause = EntityDamageEvent.DamageCause.CUSTOM;
         if (ent.getLastDamageCause() != null) {
@@ -753,7 +675,6 @@ public class BGGameListener implements Listener
             if (killer != null) {
                 bgMain.getFameManager().addFame(killer.getId());
                 killer.setKills(killer.getKills() + 1);
-                bgMain.getUserManager().saveAllUsers();
                 final String rank = killer.getRank();
                 final int fame = killer.getFame();
                 if (fame >= 25 && fame < 100) {
@@ -835,14 +756,12 @@ public class BGGameListener implements Listener
                     }
                 }
                 this.sendGameMessage(this.getDeathMessage(dCause, true, target, killer));
-                bgMain.getUserManager().saveAllUsers();
             }
         }
         else {
             this.sendGameMessage(this.getDeathMessage(dCause, false, target, target));
         }
         target.setPlayedGames(target.getPlayedGames() + 1);
-        bgMain.getUserManager().saveAllUsers();
         Bukkit.getScheduler().runTaskLater((Plugin)BGMain.instance, (Runnable)new Runnable() {
             @Override
             public void run() {
@@ -954,14 +873,14 @@ public class BGGameListener implements Listener
         final Entity ent = e.getEntity();
         if (ent instanceof Player) {
             final Player ptarget = (Player)ent;
-            final User target = bgMain.getUserManager().getUserById(ptarget.getUniqueId());
+            final User target = BGMain.database.getCached(ptarget.getUniqueId());
             final Entity damager = e.getDamager();
             if (e.getCause().equals((Object)EntityDamageEvent.DamageCause.PROJECTILE)) {
                 if (damager instanceof Snowball) {
                     final Snowball snowball = (Snowball)damager;
                     if (snowball.getShooter() instanceof Player) {
                         final Player pkiller = (Player)snowball.getShooter();
-                        final User killer = bgMain.getUserManager().getUserById(pkiller.getUniqueId());
+                        final User killer = BGMain.database.getCached(pkiller.getUniqueId());
                         Tagged.addTagged(target, killer, System.currentTimeMillis());
                     }
                 }
@@ -969,7 +888,7 @@ public class BGGameListener implements Listener
                     final Egg egg = (Egg)damager;
                     if (egg.getShooter() instanceof Player) {
                         final Player pkiller = (Player)egg.getShooter();
-                        final User killer = bgMain.getUserManager().getUserById(pkiller.getUniqueId());
+                        final User killer = BGMain.database.getCached(pkiller.getUniqueId());
                         Tagged.addTagged(target, killer, System.currentTimeMillis());
                     }
                 }
@@ -977,7 +896,7 @@ public class BGGameListener implements Listener
                     final Arrow arrow = (Arrow)damager;
                     if (arrow.getShooter() instanceof Player) {
                         final Player pkiller = (Player)arrow.getShooter();
-                        final User killer = bgMain.getUserManager().getUserById(pkiller.getUniqueId());
+                        final User killer = BGMain.database.getCached(pkiller.getUniqueId());
                         Tagged.addTagged(target, killer, System.currentTimeMillis());
                     }
                 }
@@ -985,7 +904,7 @@ public class BGGameListener implements Listener
                     final EnderPearl ePearl = (EnderPearl)damager;
                     if (ePearl.getShooter() instanceof Player) {
                         final Player pkiller = (Player)ePearl.getShooter();
-                        final User killer = bgMain.getUserManager().getUserById(pkiller.getUniqueId());
+                        final User killer = BGMain.database.getCached(pkiller.getUniqueId());
                         Tagged.addTagged(target, killer, System.currentTimeMillis());
                     }
                 }
@@ -993,13 +912,13 @@ public class BGGameListener implements Listener
                     final ThrownPotion potion = (ThrownPotion)damager;
                     if (potion.getShooter() instanceof Player) {
                         final Player pkiller = (Player)potion.getShooter();
-                        final User killer = bgMain.getUserManager().getUserById(pkiller.getUniqueId());
+                        final User killer = BGMain.database.getCached(pkiller.getUniqueId());
                         Tagged.addTagged(target, killer, System.currentTimeMillis());
                     }
                 }
             }
             else if (damager instanceof Player) {
-                final User killer = bgMain.getUserManager().getUserById(damager.getUniqueId());
+                final User killer = BGMain.database.getCached(damager.getUniqueId());
                 Tagged.addTagged(target, killer, System.currentTimeMillis());
             }
         }

@@ -1,43 +1,35 @@
-package lc.mine.hg.data.temporal;
+package lc.mine.hg.data.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import java.util.List;
 import java.util.UUID;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class User {
+import lc.mine.core.database.PlayerData;
+import lc.mine.hg.main.BGMain;
+
+public class User {   
     private UUID id;
     private String name;
     private String kit;
     private String rank;
-    private int lcoins;
-    private int vipPoints;
     private int wins;
     private int playedGames;
     private int deaths;
     private int kills;
     private int fame;
-    private List<String> ownKitList;
 
     // Default constructor required for Jackson
     public User() {}
 
     // Parameterized constructor
-    public User(UUID id, String name, String kit, String rank, int lcoins, int vipPoints, int wins, int playedGames, int deaths, int kills, int fame, List<String> ownKitList) {
+    public User(UUID id, String name, String kit, String rank, int wins, int playedGames, int deaths, int kills, int fame) {
         this.id = id;
         this.name = name;
         this.kit = kit;
         this.rank = rank;
-        this.lcoins = lcoins;
-        this.vipPoints = vipPoints;
         this.wins = wins;
         this.playedGames = playedGames;
         this.deaths = deaths;
         this.kills = kills;
         this.fame = fame;
-        this.ownKitList = ownKitList;
     }
 
     // Getters and setters
@@ -72,20 +64,30 @@ public class User {
         this.rank = rank;
     }
 
-    public int getLcoins() {
-        return lcoins;
+    public double getLcoins() {
+        final PlayerData data = BGMain.core.getData().getCached(id);
+        return (data == null) ? 0 : data.getLcoins();
     }
 
-    public void setLcoins(int lcoins) {
-        this.lcoins = lcoins;
+    public void setLcoins(double lcoins) {
+        final PlayerData data = BGMain.core.getData().getCached(id);
+        if (data == null) {
+            return;
+        }
+        data.setLcoins(lcoins);
     }
 
-    public int getVipPoints() {
-        return vipPoints;
+    public double getVipPoints() {
+        final PlayerData data = BGMain.core.getData().getCached(id);
+        return (data == null) ? 0 : data.getVipPoins();
     }
 
-    public void setVipPoints(int vipPoints) {
-        this.vipPoints = vipPoints;
+    public void setVipPoints(double vipPoints) {
+        final PlayerData data = BGMain.core.getData().getCached(id);
+        if (data == null) {
+            return;
+        }
+        data.setVipPoins(vipPoints);
     }
 
     public int getWins() {
@@ -128,19 +130,14 @@ public class User {
         this.fame = fame;
     }
 
-    public List<String> getOwnKitList() {
-        return ownKitList;
-    }
-
-    public void setOwnKitList(List<String> ownKitList) {
-        this.ownKitList = ownKitList;
-    }
-
     // Additional methods
-    @JsonIgnore
     public int getLevel() {
         int lvl = kills / 100;
         lvl += wins / 2;
         return lvl;
+    }
+
+    public static final class New extends User {
+        
     }
 }

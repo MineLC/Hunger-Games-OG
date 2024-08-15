@@ -1,12 +1,15 @@
 package lc.mine.hg.main;
 
+import lc.mine.core.CorePlugin;
 import lc.mine.hg.commands.BGConsole;
 import lc.mine.hg.commands.BGPlayer;
+import lc.mine.hg.data.database.Database;
+import lc.mine.hg.data.database.mongodb.StartMongodb;
 import lc.mine.hg.data.economy.EconomyManager;
 import lc.mine.hg.data.economy.FameManager;
-import lc.mine.hg.data.temporal.TopManager;
-import lc.mine.hg.data.temporal.User;
-import lc.mine.hg.data.temporal.UserManager;
+import lc.mine.hg.data.top.TopManager;
+import lc.mine.hg.data.top.TopStorage;
+import lc.mine.hg.data.user.User;
 import lc.mine.hg.events.BGAbilitiesListener;
 import lc.mine.hg.events.BGGameListener;
 import lc.mine.hg.timers.GameTimer;
@@ -34,10 +37,9 @@ import org.bukkit.configuration.file.*;
 
 public class BGMain extends JavaPlugin
 {
-    private static final UserManager userManager = new UserManager();
-    private static EconomyManager economyManager = new EconomyManager(userManager);
-    private FameManager fameManager = new FameManager(userManager);
-    private TopManager topManager = new TopManager(userManager);
+    private static EconomyManager economyManager = new EconomyManager();
+    private FameManager fameManager = new FameManager();
+
     public static GameState GAMESTATE;
     public static String HELP_MESSAGE;
     public static String SERVER_FULL_MSG;
@@ -67,13 +69,20 @@ public class BGMain extends JavaPlugin
     public static String mapa;
     public static LinkedList<Player> gamers;
     public static String ganador;
-    public static SplittableRandom random;
+    public final static SplittableRandom random = new SplittableRandom();
     public static HashMap<Player, Integer> Fame;
     public static World mainWorld;
     public static ArrayList<Player> frezee;
+    public static CorePlugin core;
     public static boolean GEN_MAPS;
+
+    public static Database database;
     
     static {
+        resetGame();
+    }
+
+    public static void resetGame() {
         BGMain.GAMESTATE = GameState.PREGAME;
         BGMain.HELP_MESSAGE = null;
         BGMain.SERVER_FULL_MSG = "";
@@ -101,44 +110,50 @@ public class BGMain extends JavaPlugin
         BGMain.mapa = "default";
         BGMain.gamers = new LinkedList<Player>();
         BGMain.ganador = "Nadie";
-        BGMain.random = new SplittableRandom();
         BGMain.Fame = new HashMap<Player, Integer>();
-        BGMain.mainWorld = Bukkit.getWorld("world");
     }
     
-    public static ArrayList<Player> getFrezee() {
-        return BGMain.frezee;
-    }
-    
-    public void onLoad() {
-        BGMain.instance = this;
-        try {
-            new BGFiles();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+    private static String oldWorld = "world";
+    public static boolean loading = false;
+
+    public static void loadMap() {
         BGMain.log.info("Deleting old world.");
-        Bukkit.getServer().unloadWorld("world", false);
-        deleteDir(new File("world"));
-        final Random r = new Random();
+        loading = true;
         BGMain.GEN_MAPS = BGFiles.worldconf.getBoolean("GEN_MAPS");
         final List<String> mapnames = (List<String>)BGFiles.worldconf.getStringList("WORLDS");
-        final String map = mapnames.get(r.nextInt(mapnames.size()));
+        final String map = mapnames.get(random.nextInt(mapnames.size()));
         final String[] splitmap = map.split(",");
-        BGMain.log.info("Copying saved world. (" + splitmap[0] + ")");
-        try {
-            this.copyDirectory(new File(this.getDataFolder(), splitmap[0]), new File("world"));
-        }
-        catch (IOException e2) {
-            BGMain.log.warning("Error: " + e2.toString());
-        }
+        
+        oldWorld = splitmap[0];
+        BGMain.mainWorld = Bukkit.getServer().createWorld(new WorldCreator(map));
+        BGMain.spawn.setWorld(mainWorld);
+        Bukkit.getServer().unloadWorld(oldWorld, false);
+
         if (splitmap.length == 2) {
             BGMain.WORLDRADIUS = Integer.parseInt(splitmap[1]);
         }
         else {
             BGMain.WORLDRADIUS = 300;
         }
+        loading = false;
+        System.gc();
+    }
+
+    public static ArrayList<Player> getFrezee() {
+        return BGMain.frezee;
+    }
+    
+    public void onLoad() {
+        BGMain.loading = true;
+        BGMain.instance = this;
+
+        try {
+            new BGFiles();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        loadMap();
     }
     
     private void registerEvents() {
@@ -238,9 +253,24 @@ public class BGMain extends JavaPlugin
     
     public void onEnable() {
         BGMain.instance = this;
+        final Plugin core = getServer().getPluginManager().getPlugin("LCCore");
+        if (core == null) {
+            getLogger().warning("LCCore don't found");
+            getLogger().warning("CHG will not start");
+            return;
+        }
+        BGMain.core = (CorePlugin)core;
+        database = new StartMongodb().start(getLogger(), getConfig());
+        if (database == null ) {
+            getLogger().warning("MongoDB don't found");
+            getLogger().warning("CHG will not start");
+            return;
+        }
+
+        new TopManager().start();
+
         getServer().getMessenger().registerOutgoingPluginChannel((Plugin)this, "BungeeCord");
-        userManager.createDataFileIfNotExists();
-        Bukkit.getServer().getWorlds().get(0).setDifficulty(Difficulty.PEACEFUL);
+        BGMain.mainWorld.setDifficulty(Difficulty.PEACEFUL);
         (BGMain.log = Bukkit.getLogger()).info("Loading configuration options.");
         BGMain.SERVER_TITLE = this.getConfig().getString("MESSAGE.SERVER_TITLE");
         BGMain.HELP_MESSAGE = this.getConfig().getString("MESSAGE.HELP_MESSAGE");
@@ -265,7 +295,7 @@ public class BGMain extends JavaPlugin
         this.registerCommands();
         new BGKit(this);
         new BGChat();
-        final World world = Bukkit.getServer().getWorlds().get(0);
+        final World world = BGMain.mainWorld;
         BGMain.spawn = world.getSpawnLocation();
         world.setAutoSave(true);
         final WorldBorder wb = world.getWorldBorder();
@@ -282,15 +312,16 @@ public class BGMain extends JavaPlugin
         BGMain.log.info("Fase De Juego: 1 - Esperando");
         final String command = "minecraft:gamerule sendCommandFeedback false";
         Bukkit.getServer().dispatchCommand((CommandSender)Bukkit.getConsoleSender(), command);
-        Bukkit.getConsoleSender().sendMessage("Top Kills" + getTopManager().getTopKills().toString());
         BGMain.frezee = new ArrayList<Player>();
     }
     
-    public void onDisable() {
-        for (final Player p : Bukkit.getOnlinePlayers()) {
-            p.kickPlayer(ChatColor.GOLD + BGMain.ganador + " es el ganador del juego!");
+    public void onDisable() {       
+        if (database != null) {
+            database.close();
         }
-        userManager.saveAllUsers();
+        if (TopStorage.get() != null) {
+            TopStorage.get().saveAll();
+        }
         Bukkit.getServer().getScheduler().cancelAllTasks();
     }
     
@@ -300,7 +331,7 @@ public class BGMain extends JavaPlugin
         PreGameTimer.cancel();
         new InvincibilityTimer();
         BGMain.GAMESTATE = GameState.INVINCIBILITY;
-        final World world = Bukkit.getWorlds().get(0);
+        final World world = BGMain.mainWorld;
         world.setAutoSave(false);
         world.setDifficulty(Difficulty.NORMAL);
         world.setTime(0L);
@@ -352,29 +383,6 @@ public class BGMain extends JavaPlugin
         player.sendMessage(ChatColor.GOLD + "+" + x + " Vip Points");
     }
     
-    private void copyDirectory(final File sourceLocation, final File targetLocation) throws IOException {
-        if (sourceLocation.isDirectory()) {
-            if (!targetLocation.exists()) {
-                targetLocation.mkdir();
-            }
-            final String[] children = sourceLocation.list();
-            for (int i = 0; i < children.length; ++i) {
-                this.copyDirectory(new File(sourceLocation, children[i]), new File(targetLocation, children[i]));
-            }
-        }
-        else {
-            final InputStream in = new FileInputStream(sourceLocation);
-            final OutputStream out = new FileOutputStream(targetLocation);
-            final byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-            in.close();
-            out.close();
-        }
-    }
-    
     public static void copy(final InputStream in, final File file) {
         try {
             final OutputStream out = new FileOutputStream(file);
@@ -407,13 +415,12 @@ public class BGMain extends JavaPlugin
             }
             else {
                 GameTimer.cancel();
-                final User jug = userManager.getUserById(getGamers().get(0).getUniqueId());
+                final User jug = database.getCached(getGamers().get(0).getUniqueId());
                 BGMain.ganador = Bukkit.getPlayer(jug.getId()).getName();
                 jug.setWins(jug.getWins() + 1);
                 jug.setPlayedGames(jug.getPlayedGames() + 1);
-                jug.setVipPoints(jug.getVipPoints() + 10);
+                jug.setVipPoints(jug.getVipPoints() + 1);
                 sendVipMessage(jug, 10);
-                userManager.saveAllUsers();
                 final String title = "title " + ganador + " title [{\"text\":\"Ganaste!\",\"color\":\"gold\"}]";
                 Bukkit.getServer().dispatchCommand((CommandSender)Bukkit.getConsoleSender(), title);
                 final Location loc = Bukkit.getPlayer(jug.getId()).getEyeLocation();
@@ -427,7 +434,12 @@ public class BGMain extends JavaPlugin
                 Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)BGMain.instance, (Runnable)new Runnable() {
                     @Override
                     public void run() {
-                        Bukkit.shutdown();
+                        BGMain.loading = true;
+                        for (final Player p : Bukkit.getOnlinePlayers()) {
+                            p.kickPlayer(ChatColor.GOLD + BGMain.ganador + " es el ganador del juego!");
+                        }
+                        BGMain.resetGame();
+                        BGMain.loadMap();
                     }
                 }, 200L);
                 for (final Player Online : Bukkit.getOnlinePlayers()) {
@@ -634,19 +646,11 @@ public class BGMain extends JavaPlugin
         return ChatColor.translateAlternateColorCodes('&', String.valueOf(c) + rank);
     }
 
-    public UserManager getUserManager() {
-        return userManager;
-    }
-
     public EconomyManager getEconomyManager() {
         return economyManager;
     }
 
     public FameManager getFameManager() {
         return fameManager;
-    }
-
-    public TopManager getTopManager() {
-        return topManager;
     }
 }

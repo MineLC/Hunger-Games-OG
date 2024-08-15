@@ -2,7 +2,7 @@ name: MINELC_CHG
 main: lc.mine.hg.main.BGMain
 version: 1.0
 startup: startup
-depend: [PlaceholderAPI]
+depend: [PlaceholderAPI, LCCore]
 description: Soy esa
 commands:
   help:

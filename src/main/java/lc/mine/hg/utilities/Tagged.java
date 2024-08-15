@@ -1,8 +1,8 @@
 package lc.mine.hg.utilities;
 
-import lc.mine.hg.data.temporal.User;
-
 import java.util.*;
+
+import lc.mine.hg.data.user.User;
 
 public class Tagged
 {

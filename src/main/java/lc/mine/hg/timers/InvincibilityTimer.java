@@ -39,7 +39,7 @@ public class InvincibilityTimer
                         pl.playSound(pl.getLocation(), Sound.ANVIL_LAND, 1.0f, 2.0f);
                     }
                     BGChat.printTipChat();
-                    BGMain.spawn.getWorld().setAutoSave(true);
+                    BGMain.spawn.getWorld().setAutoSave(false);
                     BGMain.GAMESTATE = GameState.GAME;
                     new GameTimer();
                     InvincibilityTimer.cancel();

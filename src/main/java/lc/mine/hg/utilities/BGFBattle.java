@@ -12,11 +12,6 @@ import org.bukkit.event.*;
 public class BGFBattle implements Listener
 {
     private static Block mainBlock;
-    private static SplittableRandom random;
-    
-    static {
-        BGFBattle.random = BGMain.random;
-    }
     
     public static void createBattle() {
         Bukkit.getPluginManager().registerEvents((Listener)new BGFBattle(), (Plugin)BGMain.instance);
@@ -69,7 +64,7 @@ public class BGFBattle implements Listener
     public static void teleportGamers(final LinkedList<Player> linkedList) {
         for (final Player p : linkedList) {
             p.leaveVehicle();
-            final Location loc = BGFBattle.mainBlock.getLocation().add(BGFBattle.random.nextInt(5) + 0.5, 1.0, BGFBattle.random.nextInt(5) + 0.5);
+            final Location loc = BGFBattle.mainBlock.getLocation().add(BGMain.random.nextInt(5) + 0.5, 1.0, BGMain.random.nextInt(5) + 0.5);
             p.teleport(loc);
         }
     }
