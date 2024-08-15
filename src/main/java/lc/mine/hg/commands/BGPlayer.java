@@ -303,12 +303,6 @@ public class BGPlayer implements CommandExecutor
                     return true;
                 }
             }
-            if (cmd.getName().equalsIgnoreCase("lobby")) {
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF("Connect");
-                out.writeUTF("lobby");
-                p.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
-            }
             return true;
         }
     }

@@ -125,8 +125,9 @@ public class BGMain extends JavaPlugin
         final String[] splitmap = map.split(",");
         
         oldWorld = splitmap[0];
-        BGMain.mainWorld = Bukkit.getServer().createWorld(new WorldCreator(map));
-        BGMain.spawn.setWorld(mainWorld);
+        BGMain.mainWorld = Bukkit.getServer().createWorld(new WorldCreator(map).generateStructures(false));
+        BGMain.spawn = mainWorld.getSpawnLocation();
+
         Bukkit.getServer().unloadWorld(oldWorld, false);
 
         if (splitmap.length == 2) {
@@ -153,7 +154,6 @@ public class BGMain extends JavaPlugin
         catch (Exception e) {
             e.printStackTrace();
         }
-        loadMap();
     }
     
     private void registerEvents() {
@@ -268,8 +268,8 @@ public class BGMain extends JavaPlugin
         }
 
         new TopManager().start();
+        loadMap();
 
-        getServer().getMessenger().registerOutgoingPluginChannel((Plugin)this, "BungeeCord");
         BGMain.mainWorld.setDifficulty(Difficulty.PEACEFUL);
         (BGMain.log = Bukkit.getLogger()).info("Loading configuration options.");
         BGMain.SERVER_TITLE = this.getConfig().getString("MESSAGE.SERVER_TITLE");
