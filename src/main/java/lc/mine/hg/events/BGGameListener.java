@@ -41,22 +41,24 @@ public class BGGameListener implements Listener
     private static ItemStack stats_item;
     private static ItemStack kit_item;
     private static ItemStack book_item;
-    private static IconMenu invStats_CHG;
-    private static IconMenu invStats;
+    private static IconMenu invStats_CHG = null;
+    private static IconMenu invStats = null;
     private static IconMenu invStats_CHG_kills;
     private static IconMenu invStats_CHG_deaths;
     private static IconMenu invStats_CHG_part_ganadas;
     private static IconMenu invStats_CHG_part_jugadas;
     
-    static {
-        BGGameListener.stats_item = new ItemUtils(Material.PAPER, (short) 0, 1, ChatColor.GREEN + "TOP Jugadores", ChatColor.GRAY + "Click derecho para ver el top de jugadores");
-        BGGameListener.kit_item = new ItemUtils(Material.BOW, (short) 0, 1, ChatColor.GREEN + "Selector De Kit", ChatColor.GRAY + "Click derecho para abrir el menu de kits");
-        BGGameListener.invStats_CHG = null;
-        BGGameListener.invStats = null;
+    public static void resetInventoryStats() {
         BGGameListener.invStats_CHG_kills = null;
         BGGameListener.invStats_CHG_deaths = null;
         BGGameListener.invStats_CHG_part_ganadas = null;
         BGGameListener.invStats_CHG_part_jugadas = null;
+    }
+
+    static {
+        BGGameListener.stats_item = new ItemUtils(Material.PAPER, (short) 0, 1, ChatColor.GREEN + "TOP Jugadores", ChatColor.GRAY + "Click derecho para ver el top de jugadores");
+        BGGameListener.kit_item = new ItemUtils(Material.BOW, (short) 0, 1, ChatColor.GREEN + "Selector De Kit", ChatColor.GRAY + "Click derecho para abrir el menu de kits");
+        resetInventoryStats();
         BGGameListener.book_item = new ItemStack(Material.WRITTEN_BOOK);
         final List<String> pages = (List<String>) BGFiles.bookconf.getStringList("content");
         final List<String> content = new ArrayList<String>();

@@ -111,6 +111,7 @@ public class BGMain extends JavaPlugin
         BGMain.gamers = new LinkedList<Player>();
         BGMain.ganador = "Nadie";
         BGMain.Fame = new HashMap<Player, Integer>();
+        BGGameListener.resetInventoryStats();
     }
     
     private static String oldWorld = "world";
