@@ -111,7 +111,6 @@ public class BGMain extends JavaPlugin
         BGMain.gamers = new LinkedList<Player>();
         BGMain.ganador = "Nadie";
         BGMain.Fame = new HashMap<Player, Integer>();
-        BGGameListener.resetInventoryStats();
     }
     
     private static String oldWorld = "world";
@@ -137,6 +136,14 @@ public class BGMain extends JavaPlugin
         else {
             BGMain.WORLDRADIUS = 300;
         }
+        mainWorld.setAutoSave(false);
+        final WorldBorder wb = mainWorld.getWorldBorder();
+        wb.setCenter(BGMain.spawn);
+        wb.setWarningDistance(15);
+        wb.setSize(350.0);
+        mainWorld.setTime(6000L);
+        mainWorld.setGameRuleValue("spectatorsGenerateChunks", "false");
+        mainWorld.setGameRuleValue("KeepInventory", "false");
         loading = false;
         System.gc();
     }
@@ -289,7 +296,7 @@ public class BGMain extends JavaPlugin
         Translation.e = (FileConfiguration)YamlConfiguration.loadConfiguration(new File(BGMain.instance.getDataFolder(), "lang.yml"));
         if (BGMain.WORLDRADIUS < 60) {
             BGMain.log.warning("Worldborder radius has to be 60 or higher!");
-            BGMain.WORLDRADIUS = 100;
+            BGMain.WORLDRADIUS = 200;
         }
         new BGKillsPAPI(this).register();
         this.registerEvents();
@@ -298,14 +305,7 @@ public class BGMain extends JavaPlugin
         new BGChat();
         final World world = BGMain.mainWorld;
         BGMain.spawn = world.getSpawnLocation();
-        world.setAutoSave(true);
-        final WorldBorder wb = world.getWorldBorder();
-        wb.setCenter(BGMain.spawn);
-        wb.setWarningDistance(15);
-        wb.setSize(250.0);
-        world.setTime(6000L);
-        world.setGameRuleValue("spectatorsGenerateChunks", "false");
-        world.setGameRuleValue("KeepInventory", "false");
+
         BGMain.COUNTDOWN = BGMain.COUNTDOWN_SECONDS;
         BGMain.FINAL_COUNTDOWN = BGMain.FINAL_COUNTDOWN_SECONDS;
         BGMain.GAME_RUNNING_TIME = 0;
@@ -421,7 +421,7 @@ public class BGMain extends JavaPlugin
                 jug.setWins(jug.getWins() + 1);
                 jug.setPlayedGames(jug.getPlayedGames() + 1);
                 jug.setVipPoints(jug.getVipPoints() + 1);
-                sendVipMessage(jug, 10);
+                sendVipMessage(jug, 1);
                 final String title = "title " + ganador + " title [{\"text\":\"Ganaste!\",\"color\":\"gold\"}]";
                 Bukkit.getServer().dispatchCommand((CommandSender)Bukkit.getConsoleSender(), title);
                 final Location loc = Bukkit.getPlayer(jug.getId()).getEyeLocation();
@@ -439,6 +439,7 @@ public class BGMain extends JavaPlugin
                         for (final Player p : Bukkit.getOnlinePlayers()) {
                             p.kickPlayer(ChatColor.GOLD + BGMain.ganador + " es el ganador del juego!");
                         }
+                        BGGameListener.resetInventoryStats();
                         BGMain.resetGame();
                         BGMain.loadMap();
                     }

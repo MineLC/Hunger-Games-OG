@@ -557,10 +557,8 @@ public class BGGameListener implements Listener
         }
         p.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
         p.getScoreboard().clearSlot(DisplaySlot.BELOW_NAME);
-        CompletableFuture.runAsync(() -> {
-            TopStorage.get().save(jug);
-            BGMain.database.save(p);
-        });
+        TopStorage.get().save(jug);
+        BGMain.database.save(p);
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
