@@ -13,9 +13,12 @@ public final record Top(
     }
 
     public void calculatePosition(final Player player) {
-        delete(player.name); // Delete older data
-
         final int score = player.value;
+        if (score == 0) {
+            return;
+        }
+
+        delete(player.name); // Delete older data
 
         Player toMove = null;
         int i = 0;

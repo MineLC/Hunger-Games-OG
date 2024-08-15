@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
 import java.util.Set;
 import java.util.UUID;
 
@@ -57,7 +58,7 @@ public final class MongoData implements Database {
         }
         final Bson query = createUpdateQuery(data);
         if (query != null) {
-            collection.updateOne(Filters.eq("_id", player.getName()), query);
+            CompletableFuture.runAsync(() -> collection.updateOne(Filters.eq("_id", player.getName()), query));
         }
     }
     private Document getNew(final User user) {
